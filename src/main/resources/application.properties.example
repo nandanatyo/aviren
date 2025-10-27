@@ -1,0 +1,47 @@
+# Application Name
+spring.application.name=pet-app
+
+# Server Port
+server.port=8080
+
+# Database Configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/mental_health_db
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# JWT Configuration
+jwt.secret=your-secret-key-change-this-in-production-must-be-at-least-256-bits
+jwt.expiration=86400000
+
+# MinIO Configuration
+minio.url=http://localhost:9000
+minio.access-key=minioadmin
+minio.secret-key=minioadmin
+minio.bucket-name=pet-app-bucket
+
+# OpenAI Configuration
+openai.api-key=your-openai-api-key-here
+openai.model=gpt-4
+openai.max-tokens=500
+
+# Pet Default Configuration
+pet.default.animal-types=Kucing,Anjing,Kelinci,Hamster,Burung
+pet.default.min-weight=0.5
+pet.default.max-weight=50.0
+pet.default.min-age-years=0
+pet.default.max-age-years=15
+
+# File Upload
+spring.servlet.multipart.max-file-size=5MB
+spring.servlet.multipart.max-request-size=5MB
+
+# Logging
+logging.level.com.mentalhealth.aviren=DEBUG
+logging.level.org.springframework.security=DEBUG
