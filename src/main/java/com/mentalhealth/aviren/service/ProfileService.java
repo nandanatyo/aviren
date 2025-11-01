@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mentalhealth.aviren.dto.request.UpdateProfileRequest;
+import com.mentalhealth.aviren.dto.response.PetResponse;
 import com.mentalhealth.aviren.dto.response.ProfileResponse;
 import com.mentalhealth.aviren.entity.User;
 import com.mentalhealth.aviren.exception.BadRequestException;
@@ -18,17 +19,21 @@ import lombok.RequiredArgsConstructor;
 public class ProfileService {
     
     private final UserRepository userRepository;
+    private final PetService petService;
     private final MinioService minioService;
     
     public ProfileResponse getProfile(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
         
+        PetResponse petResponse = petService.getPetByUserId(user.getId());
+        
         return new ProfileResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getProfilePhoto()
+                user.getProfilePhoto(),
+                petResponse
         );
     }
     
@@ -59,11 +64,14 @@ public class ProfileService {
         
         User updatedUser = userRepository.save(user);
         
+        PetResponse petResponse = petService.getPetByUserId(user.getId());
+
         return new ProfileResponse(
                 updatedUser.getId(),
                 updatedUser.getName(),
                 updatedUser.getEmail(),
-                updatedUser.getProfilePhoto()
+                updatedUser.getProfilePhoto(),
+                petResponse
         );
     }
 }

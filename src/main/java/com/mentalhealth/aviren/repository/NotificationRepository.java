@@ -11,4 +11,7 @@ import com.mentalhealth.aviren.entity.Notification;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<Notification> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(Long userId);
+    List<Notification> findByUserId(Long userId);
+    List<Notification> findByUserIdAndIsRead(Long userId, Boolean isRead);
+    Long countByUserIdAndIsRead(Long userId, Boolean isRead);
 }

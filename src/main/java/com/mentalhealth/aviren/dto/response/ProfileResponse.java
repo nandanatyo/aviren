@@ -12,4 +12,5 @@ public class ProfileResponse {
     private String name;
     private String email;
     private String profilePhoto;
+    private PetResponse pet;
 }
