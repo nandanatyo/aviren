@@ -46,6 +46,8 @@ services:
       dockerfile: Dockerfile
     container_name: mental-health-app
     environment:
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: never
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mental_health_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
@@ -56,6 +58,13 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION:-3600000}   
       JWT_ISSUER: ${JWT_ISSUER:-aviren}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_MAX_TOKENS: "4096" 
+      PET_DEFAULT_ANIMAL_TYPES: "cat,dog,bird,rabbit,hamster"
+      PET_DEFAULT_MIN_WEIGHT: "0.5"
+      PET_DEFAULT_MAX_WEIGHT: "50.0"
+      PET_DEFAULT_MIN_AGE_YEARS: "0"
+      PET_DEFAULT_MAX_AGE_YEARS: "15"
     ports:
       - "8080:8080"
     depends_on:
