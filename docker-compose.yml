@@ -53,6 +53,8 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-this-in-production-must-be-at-least-256-bits}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600000}   
+      JWT_ISSUER: ${JWT_ISSUER:-aviren}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:
       - "8080:8080"
