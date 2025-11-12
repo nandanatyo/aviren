@@ -7,25 +7,20 @@ services:
     environment:
       POSTGRES_DB: mental_health_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: 231220
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - mental-health-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   minio:
     image: minio/minio:latest
     container_name: mental-health-minio
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -34,52 +29,27 @@ services:
     command: server /data --console-address ":9001"
     networks:
       - mental-health-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  app:
+  mental-health-app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: mental-health-app
     environment:
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_SQL_INIT_MODE: never
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mental_health_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      MINIO_URL: http://minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-this-in-production-must-be-at-least-256-bits}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600000}   
-      JWT_ISSUER: ${JWT_ISSUER:-aviren}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
-      OPENAI_MAX_TOKENS: "4096" 
-      PET_DEFAULT_ANIMAL_TYPES: "cat,dog,bird,rabbit,hamster"
-      PET_DEFAULT_MIN_WEIGHT: "0.5"
-      PET_DEFAULT_MAX_WEIGHT: "50.0"
-      PET_DEFAULT_MIN_AGE_YEARS: "0"
-      PET_DEFAULT_MAX_AGE_YEARS: "15"
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8080:8080"
     depends_on:
-      postgres:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+      - postgres
+      - minio
     networks:
       - mental-health-network
     restart: unless-stopped
 
-networks:
-  mental-health-network:
-    driver: bridge
-
 volumes:
   postgres_data:
   minio_data:
+
+networks:
+  mental-health-network:
+    driver: bridge

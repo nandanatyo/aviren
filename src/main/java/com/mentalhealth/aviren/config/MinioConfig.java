@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
+import io.minio.SetBucketPolicyArgs;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
@@ -43,6 +44,30 @@ public class MinioConfig {
                 );
                 log.info("Bucket '{}' created successfully", bucketName);
             }
+            
+            // Set bucket policy to public read
+            String policy = String.format("""
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {"AWS": "*"},
+                            "Action": ["s3:GetObject"],
+                            "Resource": ["arn:aws:s3:::%s/*"]
+                        }
+                    ]
+                }
+                """, bucketName);
+            
+            minioClient.setBucketPolicy(
+                SetBucketPolicyArgs.builder()
+                    .bucket(bucketName)
+                    .config(policy)
+                    .build()
+            );
+            
+            log.info("Bucket '{}' set to public read access", bucketName);
             
             return minioClient;
             
