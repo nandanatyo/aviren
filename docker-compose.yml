@@ -1,13 +1,9 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
     container_name: mental-health-postgres
-    environment:
-      POSTGRES_DB: mental_health_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 231220
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -18,9 +14,8 @@ services:
   minio:
     image: minio/minio:latest
     container_name: mental-health-minio
-    environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+    env_file:
+      - .env
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -35,8 +30,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mental-health-app
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     depends_on:
