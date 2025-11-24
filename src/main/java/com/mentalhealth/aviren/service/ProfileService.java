@@ -1,5 +1,6 @@
 package com.mentalhealth.aviren.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,17 +23,23 @@ public class ProfileService {
     private final PetService petService;
     private final MinioService minioService;
     
+    @Value("${server.base-url:http://localhost:8080}")
+    private String serverBaseUrl;
+    
     public ProfileResponse getProfile(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
         
         PetResponse petResponse = petService.getPetByUserId(user.getId());
         
+        // Generate dynamic URL from path
+        String profilePhotoUrl = minioService.generateFileUrl(user.getProfilePhoto(), serverBaseUrl);
+        
         return new ProfileResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getProfilePhoto(),
+                profilePhotoUrl,
                 petResponse
         );
     }
@@ -58,19 +65,23 @@ public class ProfileService {
         
         
         if (photo != null && !photo.isEmpty()) {
-            String photoUrl = minioService.uploadFile(photo, "profile-photos");
-            user.setProfilePhoto(photoUrl);
+            // Upload dan simpan HANYA path (bukan full URL)
+            String photoPath = minioService.uploadFile(photo, "profile-photos");
+            user.setProfilePhoto(photoPath); // e.g: "profile-photos/uuid.jpg"
         }
         
         User updatedUser = userRepository.save(user);
         
         PetResponse petResponse = petService.getPetByUserId(user.getId());
+        
+        // Generate dynamic URL from path
+        String profilePhotoUrl = minioService.generateFileUrl(updatedUser.getProfilePhoto(), serverBaseUrl);
 
         return new ProfileResponse(
                 updatedUser.getId(),
                 updatedUser.getName(),
                 updatedUser.getEmail(),
-                updatedUser.getProfilePhoto(),
+                profilePhotoUrl,
                 petResponse
         );
     }

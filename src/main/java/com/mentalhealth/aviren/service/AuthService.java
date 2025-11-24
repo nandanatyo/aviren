@@ -1,5 +1,6 @@
 package com.mentalhealth.aviren.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,9 +27,13 @@ public class AuthService {
     
     private final UserRepository userRepository;
     private final PetService petService;
+    private final MinioService minioService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
+    
+    @Value("${server.base-url:http://localhost:8080}")
+    private String serverBaseUrl;
     
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -56,12 +61,15 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = tokenProvider.generateToken(authentication);
         
+        // Generate dynamic URL
+        String profilePhotoUrl = minioService.generateFileUrl(savedUser.getProfilePhoto(), serverBaseUrl);
+        
         
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 savedUser.getId(),
                 savedUser.getName(),
                 savedUser.getEmail(),
-                savedUser.getProfilePhoto()
+                profilePhotoUrl
         );
         
         PetResponse petResponse = new PetResponse(
@@ -94,12 +102,15 @@ public class AuthService {
         
         PetResponse petResponse = petService.getPetByUserId(user.getId());
         
+        // Generate dynamic URL
+        String profilePhotoUrl = minioService.generateFileUrl(user.getProfilePhoto(), serverBaseUrl);
+        
         
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getProfilePhoto()
+                profilePhotoUrl
         );
         
         return new AuthResponse(token, "Bearer", userInfo, petResponse);
