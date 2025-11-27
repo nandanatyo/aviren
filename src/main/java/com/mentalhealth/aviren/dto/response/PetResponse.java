@@ -19,4 +19,7 @@ public class PetResponse {
     private BigDecimal weight;
     private Boolean vaccine;
     private String description;
+    private String petHomeImage;
+    private String petProfileImage;
+    private String welcomingStatement;
 }

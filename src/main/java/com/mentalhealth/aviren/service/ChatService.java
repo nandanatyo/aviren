@@ -52,6 +52,12 @@ public class ChatService {
         Pet pet = petRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Pet tidak ditemukan"));
         
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Chat> recentChats = chatRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
+        List<Chat> chatHistory = recentChats.getContent();
+        
+        java.util.Collections.reverse(chatHistory);
+        
         
         Chat userChat = new Chat();
         userChat.setUserId(user.getId());
@@ -61,7 +67,7 @@ public class ChatService {
         chatRepository.save(userChat);
         
         
-        String aiResponse = openAIService.getChatResponse(request.getMessage(), pet);
+        String aiResponse = openAIService.getChatResponse(request.getMessage(), pet, chatHistory);
         
         
         Chat petChat = new Chat();

@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@Order(5) // Sesuaikan order setelah user seeder
+@Order(5) 
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationSeeder implements CommandLineRunner {

@@ -61,7 +61,6 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = tokenProvider.generateToken(authentication);
         
-        // Generate dynamic URL
         String profilePhotoUrl = minioService.generateFileUrl(savedUser.getProfilePhoto(), serverBaseUrl);
         
         
@@ -72,16 +71,7 @@ public class AuthService {
                 profilePhotoUrl
         );
         
-        PetResponse petResponse = new PetResponse(
-                pet.getId(),
-                pet.getName(),
-                pet.getAnimalType(),
-                pet.getGender(),
-                pet.getBirthDate(),
-                pet.getWeight(),
-                pet.getVaccine(),
-                pet.getDescription()
-        );
+        PetResponse petResponse = petService.getPetByUserId(savedUser.getId());
         
         return new AuthResponse(token, "Bearer", userInfo, petResponse);
     }
@@ -102,7 +92,6 @@ public class AuthService {
         
         PetResponse petResponse = petService.getPetByUserId(user.getId());
         
-        // Generate dynamic URL
         String profilePhotoUrl = minioService.generateFileUrl(user.getProfilePhoto(), serverBaseUrl);
         
         

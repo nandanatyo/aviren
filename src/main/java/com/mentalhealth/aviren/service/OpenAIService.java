@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.mentalhealth.aviren.entity.Chat;
 import com.mentalhealth.aviren.entity.Pet;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionResult;
@@ -29,14 +30,20 @@ public class OpenAIService {
     @Value("${openai.max-tokens}")
     private Integer maxTokens;
     
-    public String getChatResponse(String userMessage, Pet pet) {
+    public String getChatResponse(String userMessage, Pet pet, List<Chat> chatHistory) {
         try {
             List<ChatMessage> messages = new ArrayList<>();
-            
             
             String systemPrompt = buildSystemPrompt(pet);
             messages.add(new ChatMessage(ChatMessageRole.SYSTEM.value(), systemPrompt));
             
+            for (Chat chat : chatHistory) {
+                if ("USER".equals(chat.getSenderType())) {
+                    messages.add(new ChatMessage(ChatMessageRole.USER.value(), chat.getMessage()));
+                } else {
+                    messages.add(new ChatMessage(ChatMessageRole.ASSISTANT.value(), chat.getMessage()));
+                }
+            }
             
             messages.add(new ChatMessage(ChatMessageRole.USER.value(), userMessage));
             

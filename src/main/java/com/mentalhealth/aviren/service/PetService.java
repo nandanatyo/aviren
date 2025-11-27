@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.mentalhealth.aviren.dto.response.PetResponse;
 import com.mentalhealth.aviren.entity.Pet;
+import com.mentalhealth.aviren.enums.WelcomingStatement;
 import com.mentalhealth.aviren.exception.ResourceNotFoundException;
 import com.mentalhealth.aviren.repository.PetRepository;
 
@@ -19,9 +20,10 @@ import lombok.RequiredArgsConstructor;
 public class PetService {
     
     private final PetRepository petRepository;
+    private final MinioService minioService;
     
-    @Value("${pet.default.animal-types}")
-    private String animalTypes;
+    @Value("${server.base-url:http://localhost:8080}")
+    private String serverBaseUrl;
     
     @Value("${pet.default.min-weight}")
     private Double minWeight;
@@ -40,13 +42,18 @@ public class PetService {
     public Pet createDefaultPetForUser(Long userId) {
         Pet pet = new Pet();
         pet.setUserId(userId);
+        
+        String animalType = "Beaver";
+        pet.setAnimalType(animalType);
+        
         pet.setName(generateRandomPetName());
-        pet.setAnimalType(getRandomAnimalType());
         pet.setGender(getRandomGender());
         pet.setBirthDate(generateRandomBirthDate());
         pet.setWeight(generateRandomWeight());
         pet.setVaccine(random.nextBoolean());
         pet.setDescription(generatePetDescription(pet));
+        
+        assignPetImages(pet, animalType);
         
         return petRepository.save(pet);
     }
@@ -58,18 +65,25 @@ public class PetService {
         return mapToPetResponse(pet);
     }
     
-    private String generateRandomPetName() {
-        String[] names = {
-            "Mochi", "Luna", "Coco", "Bella", "Max", "Charlie", 
-            "Lucy", "Buddy", "Daisy", "Rocky", "Molly", "Bailey",
-            "Simba", "Nala", "Leo", "Oscar", "Kiki", "Lilo"
-        };
-        return names[random.nextInt(names.length)];
+    private void assignPetImages(Pet pet, String animalType) {
+        switch (animalType.toLowerCase()) {
+            case "beaver":
+                pet.setPetHomeImage("pet-images/beaver-home.png");
+                pet.setPetProfileImage("pet-images/beaver-profile.png");
+                break;
+            default:
+                pet.setPetHomeImage("pet-images/default-home.png");
+                pet.setPetProfileImage("pet-images/default-profile.png");
+        }
     }
     
-    private String getRandomAnimalType() {
-        String[] types = animalTypes.split(",");
-        return types[random.nextInt(types.length)].trim();
+    private String generateRandomPetName() {
+        String[] names = {
+            "Benji", "Bailey", "Bucky", "Bruno", "Barry", 
+            "Betty", "Bella", "Bonnie", "Buddy", "Brownie",
+            "Bernie", "Benson", "Bentley", "Biscuit", "Buttons"
+        };
+        return names[random.nextInt(names.length)];
     }
     
     private String getRandomGender() {
@@ -88,13 +102,17 @@ public class PetService {
     }
     
     private String generatePetDescription(Pet pet) {
-        String pronoun = pet.getGender().equals("Male") ? "dia" : "dia";
         return String.format("%s adalah seekor %s yang ramah dan suka menemani. %s siap menjadi teman curhatmu!",
                 pet.getName(), pet.getAnimalType().toLowerCase(), 
                 pet.getName());
     }
     
     private PetResponse mapToPetResponse(Pet pet) {
+        String petHomeImageUrl = minioService.generateFileUrl(pet.getPetHomeImage(), serverBaseUrl);
+        String petProfileImageUrl = minioService.generateFileUrl(pet.getPetProfileImage(), serverBaseUrl);
+        
+        String welcomingStatement = WelcomingStatement.getRandomMessage();
+        
         return new PetResponse(
                 pet.getId(),
                 pet.getName(),
@@ -103,7 +121,10 @@ public class PetService {
                 pet.getBirthDate(),
                 pet.getWeight(),
                 pet.getVaccine(),
-                pet.getDescription()
+                pet.getDescription(),
+                petHomeImageUrl,
+                petProfileImageUrl,
+                welcomingStatement
         );
     }
 }
