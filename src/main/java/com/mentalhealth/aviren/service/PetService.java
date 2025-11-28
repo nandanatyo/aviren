@@ -3,6 +3,7 @@ package com.mentalhealth.aviren.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Random;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class PetService {
     private final PetRepository petRepository;
     private final MinioService minioService;
     
-    @Value("${server.base-url:http://localhost:8080}")
+    @Value("${server.base-url}")
     private String serverBaseUrl;
     
     @Value("${pet.default.min-weight}")

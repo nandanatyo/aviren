@@ -45,7 +45,6 @@ public class MinioConfig {
                 log.info("Bucket '{}' created successfully", bucketName);
             }
             
-            // Set bucket policy to public read
             String policy = String.format("""
                 {
                     "Version": "2012-10-17",

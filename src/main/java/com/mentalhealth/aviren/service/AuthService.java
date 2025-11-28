@@ -32,7 +32,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     
-    @Value("${server.base-url:http://localhost:8080}")
+    @Value("${server.base-url}")
     private String serverBaseUrl;
     
     @Transactional

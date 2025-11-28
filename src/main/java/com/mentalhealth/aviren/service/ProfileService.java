@@ -23,7 +23,7 @@ public class ProfileService {
     private final PetService petService;
     private final MinioService minioService;
     
-    @Value("${server.base-url:http://localhost:8080}")
+    @Value("${server.base-url}")
     private String serverBaseUrl;
     
     public ProfileResponse getProfile(String email) {
@@ -32,7 +32,6 @@ public class ProfileService {
         
         PetResponse petResponse = petService.getPetByUserId(user.getId());
         
-        // Generate dynamic URL from path
         String profilePhotoUrl = minioService.generateFileUrl(user.getProfilePhoto(), serverBaseUrl);
         
         return new ProfileResponse(
@@ -65,7 +64,6 @@ public class ProfileService {
         
         
         if (photo != null && !photo.isEmpty()) {
-            // Upload dan simpan HANYA path (bukan full URL)
             String photoPath = minioService.uploadFile(photo, "profile-photos");
             user.setProfilePhoto(photoPath); // e.g: "profile-photos/uuid.jpg"
         }
@@ -74,7 +72,6 @@ public class ProfileService {
         
         PetResponse petResponse = petService.getPetByUserId(user.getId());
         
-        // Generate dynamic URL from path
         String profilePhotoUrl = minioService.generateFileUrl(updatedUser.getProfilePhoto(), serverBaseUrl);
 
         return new ProfileResponse(

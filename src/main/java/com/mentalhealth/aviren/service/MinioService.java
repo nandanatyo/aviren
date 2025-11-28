@@ -28,20 +28,14 @@ public class MinioService {
     @Value("${minio.bucket-name}")
     private String bucketName;
     
-    /**
-     * Upload file dan return HANYA path (bukan full URL)
-     * Path format: profile-photos/uuid.jpg
-     */
     public String uploadFile(MultipartFile file, String folder) {
         try {
-            // Generate unique filename
             String originalFilename = file.getOriginalFilename();
             String extension = originalFilename != null ? 
                     originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
             String filename = UUID.randomUUID() + extension;
             String objectName = folder + "/" + filename;
             
-            // Upload file to MinIO
             InputStream inputStream = file.getInputStream();
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -54,9 +48,7 @@ public class MinioService {
             
             log.info("File uploaded successfully: {}", objectName);
             
-            // Return HANYA path, bukan full URL
-            // Nanti akan di-convert ke full URL saat mapping response
-            return objectName; // e.g: "profile-photos/abc-123.jpg"
+            return objectName; 
             
         } catch (Exception e) {
             log.error("Error uploading file to MinIO", e);
@@ -64,10 +56,6 @@ public class MinioService {
         }
     }
     
-    /**
-     * Generate full URL dari path
-     * Path: profile-photos/uuid.jpg -> http://SERVER_BASE_URL/api/files/profile-photos/uuid.jpg
-     */
     public String generateFileUrl(String path, String serverBaseUrl) {
         if (path == null || path.isEmpty()) {
             return null;
@@ -77,7 +65,6 @@ public class MinioService {
     
     public MinioFileResponse getFile(String objectName) {
         try {
-            // Get object stats
             StatObjectResponse stat = minioClient.statObject(
                     StatObjectArgs.builder()
                             .bucket(bucketName)
@@ -85,7 +72,6 @@ public class MinioService {
                             .build()
             );
             
-            // Get object stream
             InputStream stream = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucketName)
