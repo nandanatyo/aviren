@@ -12,7 +12,14 @@ public enum WelcomingStatement {
     GREETING_7("Selamat datang! Aku di sini untukmu! 🌈"),
     GREETING_8("Halo sahabat! Yuk berbagi cerita! 🎈"),
     GREETING_9("Hai! Aku senang kamu datang! 🦫"),
-    GREETING_10("Selamat datang! Ada yang bisa aku bantu? 💙");
+    GREETING_10("Selamat datang! Ada yang bisa aku bantu? 💙"),
+    GREETING_11("Halo! Ingat ya, kamu sudah hebat sejauh ini. Lanjutkan! ✨"),
+    GREETING_12("Hai! Jangan lupa tarik napas dalam… kamu aman, kamu mampu. 💙"),
+    GREETING_13("Selamat datang! Hari ini kamu berhak merasa bangga pada dirimu. 🌿"),
+    GREETING_14("Hai! Pelan-pelan aja ya, kamu nggak harus sempurna kok. 🌈"),
+    GREETING_15("Halo! Satu langkah kecil tetap langkah maju. Aku di sini temenin. 🦫"),
+    GREETING_16("Hai! Semoga hari ini kamu menemukan ketenangan yang kamu butuhkan. ☀️"),
+    GREETING_17("Selamat datang! Kamu berhak istirahat dan merasa lebih baik. 💛");
     
     private final String message;
     private static final Random random = new Random();
