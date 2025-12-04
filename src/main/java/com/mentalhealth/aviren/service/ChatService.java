@@ -1,5 +1,7 @@
 package com.mentalhealth.aviren.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +20,6 @@ import com.mentalhealth.aviren.exception.ResourceNotFoundException;
 import com.mentalhealth.aviren.repository.ChatRepository;
 import com.mentalhealth.aviren.repository.PetRepository;
 import com.mentalhealth.aviren.repository.UserRepository;
-import java.util.Collections;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,17 +50,14 @@ public class ChatService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
         
-        
         Pet pet = petRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Pet tidak ditemukan"));
         
-       Pageable pageable = PageRequest.of(0, 5);
-Page<Chat> recentChats = chatRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
-
-// FIX: ubah ke list mutable sebelum reverse
-List<Chat> chatHistory = new java.util.ArrayList<>(recentChats.getContent());
-Collections.reverse(chatHistory);
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Chat> recentChats = chatRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
         
+        List<Chat> chatHistory = new ArrayList<>(recentChats.getContent());
+        Collections.reverse(chatHistory);
         
         Chat userChat = new Chat();
         userChat.setUserId(user.getId());
@@ -68,9 +66,7 @@ Collections.reverse(chatHistory);
         userChat.setSenderType("USER");
         chatRepository.save(userChat);
         
-        
         String aiResponse = openAIService.getChatResponse(request.getMessage(), pet, chatHistory);
-        
         
         Chat petChat = new Chat();
         petChat.setUserId(user.getId());

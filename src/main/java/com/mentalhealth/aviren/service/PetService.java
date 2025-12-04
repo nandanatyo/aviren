@@ -40,7 +40,7 @@ public class PetService {
     
     private final Random random = new Random();
     
-    public Pet createDefaultPetForUser(Long userId) {
+    public Pet createDefaultPetForUser(UUID userId) {
         Pet pet = new Pet();
         pet.setUserId(userId);
         
@@ -59,7 +59,7 @@ public class PetService {
         return petRepository.save(pet);
     }
     
-    public PetResponse getPetByUserId(Long userId) {
+    public PetResponse getPetByUserId(UUID userId) {
         Pet pet = petRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pet tidak ditemukan untuk user ini"));
         

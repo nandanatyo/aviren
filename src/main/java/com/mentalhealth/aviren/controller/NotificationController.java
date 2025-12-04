@@ -1,6 +1,7 @@
 package com.mentalhealth.aviren.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -58,7 +59,7 @@ public class NotificationController {
     @PutMapping("/{id}/read")
     public ResponseEntity<ApiResponse<Void>> markAsRead(
             Authentication authentication,
-            @PathVariable Long id) {
+            @PathVariable UUID id) {
         
         String email = authentication.getName();
         notificationService.markAsRead(id, email);

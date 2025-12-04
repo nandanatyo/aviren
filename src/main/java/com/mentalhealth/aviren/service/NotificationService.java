@@ -1,6 +1,7 @@
 package com.mentalhealth.aviren.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class NotificationService {
     }
     
     @Transactional
-    public void createNotification(Long userId, String title, String content, String type) {
+    public void createNotification(UUID userId, String title, String content, String type) {
         Notification notification = new Notification();
         notification.setUserId(userId);
         notification.setTitle(title);
@@ -70,7 +71,7 @@ public class NotificationService {
     }
     
     @Transactional
-    public void markAsRead(Long notificationId, String email) {
+    public void markAsRead(UUID notificationId, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
         

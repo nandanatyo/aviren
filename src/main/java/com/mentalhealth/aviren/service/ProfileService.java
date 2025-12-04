@@ -48,11 +48,9 @@ public class ProfileService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
         
-        
         if (request.getName() != null && !request.getName().isBlank()) {
             user.setName(request.getName());
         }
-        
         
         if (request.getEmail() != null && !request.getEmail().isBlank()) {
             if (!request.getEmail().equals(user.getEmail()) && 
@@ -62,10 +60,9 @@ public class ProfileService {
             user.setEmail(request.getEmail());
         }
         
-        
         if (photo != null && !photo.isEmpty()) {
             String photoPath = minioService.uploadFile(photo, "profile-photos");
-            user.setProfilePhoto(photoPath); // e.g: "profile-photos/uuid.jpg"
+            user.setProfilePhoto(photoPath);
         }
         
         User updatedUser = userRepository.save(user);

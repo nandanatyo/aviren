@@ -12,7 +12,6 @@ import com.mentalhealth.aviren.dto.response.MinioFileResponse;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import io.minio.SetBucketPolicyArgs;
 import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +47,7 @@ public class MinioService {
             
             log.info("File uploaded successfully: {}", objectName);
             
-            return objectName; 
+            return objectName;
             
         } catch (Exception e) {
             log.error("Error uploading file to MinIO", e);
@@ -84,39 +83,6 @@ public class MinioService {
         } catch (Exception e) {
             log.error("Error getting file from MinIO: {}", objectName, e);
             throw new RuntimeException("Failed to get file", e);
-        }
-    }
-    
-    /**
-     * Set bucket policy to public read
-     * Call this method once during initialization
-     */
-    public void setBucketPublic() {
-        try {
-            String policy = String.format("""
-                {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {"AWS": "*"},
-                            "Action": ["s3:GetObject"],
-                            "Resource": ["arn:aws:s3:::%s/*"]
-                        }
-                    ]
-                }
-                """, bucketName);
-            
-            minioClient.setBucketPolicy(
-                SetBucketPolicyArgs.builder()
-                    .bucket(bucketName)
-                    .config(policy)
-                    .build()
-            );
-            
-            log.info("Bucket '{}' set to public read access", bucketName);
-        } catch (Exception e) {
-            log.error("Error setting bucket policy", e);
         }
     }
 }

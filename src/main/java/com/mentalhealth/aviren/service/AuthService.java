@@ -42,7 +42,6 @@ public class AuthService {
             throw new BadRequestException("Email sudah terdaftar");
         }
         
-        
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
@@ -50,9 +49,7 @@ public class AuthService {
         
         User savedUser = userRepository.save(user);
         
-        
         Pet pet = petService.createDefaultPetForUser(savedUser.getId());
-        
         
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -62,7 +59,6 @@ public class AuthService {
         String token = tokenProvider.generateToken(authentication);
         
         String profilePhotoUrl = minioService.generateFileUrl(savedUser.getProfilePhoto(), serverBaseUrl);
-        
         
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 savedUser.getId(),
@@ -85,15 +81,12 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = tokenProvider.generateToken(authentication);
         
-        
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadRequestException("Email atau password salah"));
-        
         
         PetResponse petResponse = petService.getPetByUserId(user.getId());
         
         String profilePhotoUrl = minioService.generateFileUrl(user.getProfilePhoto(), serverBaseUrl);
-        
         
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 user.getId(),

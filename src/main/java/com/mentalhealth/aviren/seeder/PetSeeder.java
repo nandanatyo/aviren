@@ -1,7 +1,9 @@
 package com.mentalhealth.aviren.seeder;
 
 import com.mentalhealth.aviren.entity.Pet;
+import com.mentalhealth.aviren.entity.User;
 import com.mentalhealth.aviren.repository.PetRepository;
+import com.mentalhealth.aviren.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -10,9 +12,10 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 @Component
 @Order(3)
@@ -21,6 +24,7 @@ import java.util.Random;
 public class PetSeeder implements CommandLineRunner {
 
     private final PetRepository petRepository;
+    private final UserRepository userRepository;
     private final Random random = new Random();
 
     @Override
@@ -34,33 +38,49 @@ public class PetSeeder implements CommandLineRunner {
     }
 
     private void seedPets() {
-        List<Pet> pets = Arrays.asList(
-                createPet(1L, "Benji", "Male", LocalDate.of(2020, 3, 15), 25.50, true,
-                        "Benji adalah seekor beaver yang ramah dan suka menemani. Benji siap menjadi teman curhatmu!"),
-                
-                createPet(2L, "Bailey", "Female", LocalDate.of(2019, 7, 22), 22.30, true,
-                        "Bailey adalah seekor beaver yang ceria dan penuh empati. Bailey siap menjadi teman curhatmu!"),
-                
-                createPet(3L, "Bruno", "Male", LocalDate.of(2021, 1, 10), 28.75, false,
-                        "Bruno adalah seekor beaver yang penyayang dan pengertian. Bruno siap menjadi teman curhatmu!"),
-                
-                createPet(4L, "Bella", "Female", LocalDate.of(2020, 11, 5), 20.80, true,
-                        "Bella adalah seekor beaver yang baik hati dan penuh perhatian. Bella siap menjadi teman curhatmu!"),
-                
-                createPet(5L, "Buddy", "Male", LocalDate.of(2018, 9, 18), 30.20, true,
-                        "Buddy adalah seekor beaver yang setia dan suportif. Buddy siap menjadi teman curhatmu!")
-        );
+        List<User> users = userRepository.findAll();
+        
+        if (users.isEmpty()) {
+            log.warn("⚠ Tidak ada user, tidak bisa membuat pet");
+            return;
+        }
+        
+        List<Pet> pets = new ArrayList<>();
+        
+        String[] names = {"Benji", "Bailey", "Bruno", "Bella", "Buddy"};
+        String[] genders = {"Male", "Female"};
+        
+        for (int i = 0; i < Math.min(users.size(), 5); i++) {
+            User user = users.get(i);
+            String name = names[i % names.length];
+            String gender = genders[i % 2];
+            LocalDate birthDate = LocalDate.now().minusYears(2 + i);
+            double weight = 20.0 + (i * 2.5);
+            boolean vaccine = i % 2 == 0;
+            
+            Pet pet = createPet(
+                user.getId(), 
+                name, 
+                gender, 
+                birthDate, 
+                weight, 
+                vaccine,
+                String.format("%s adalah seekor beaver yang ramah dan suka menemani. %s siap menjadi teman curhatmu!", name, name)
+            );
+            
+            pets.add(pet);
+        }
 
         petRepository.saveAll(pets);
         log.info("→ Berhasil membuat {} pets", pets.size());
     }
 
-    private Pet createPet(Long userId, String name, String gender, LocalDate birthDate, 
+    private Pet createPet(UUID userId, String name, String gender, LocalDate birthDate, 
                          Double weight, Boolean vaccine, String description) {
         Pet pet = new Pet();
         pet.setUserId(userId);
         pet.setName(name);
-        pet.setAnimalType("Beaver"); // Always Beaver for now
+        pet.setAnimalType("Beaver");
         pet.setGender(gender);
         pet.setBirthDate(birthDate);
         pet.setWeight(BigDecimal.valueOf(weight));

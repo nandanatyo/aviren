@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "chats")
@@ -16,14 +18,16 @@ import java.time.LocalDateTime;
 public class Chat {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(updatable = false, nullable = false, columnDefinition = "UUID")
+    private UUID id;
     
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
+    private UUID userId;
     
-    @Column(name = "pet_id", nullable = false)
-    private Long petId;
+    @Column(name = "pet_id", nullable = false, columnDefinition = "UUID")
+    private UUID petId;
     
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
