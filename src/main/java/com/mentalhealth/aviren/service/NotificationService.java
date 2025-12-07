@@ -24,6 +24,9 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     
+    /**
+     * Get all notifications for a user
+     */
     public List<NotificationResponse> getNotifications(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
@@ -36,6 +39,9 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Get only unread notifications for a user
+     */
     public List<NotificationResponse> getUnreadNotifications(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
@@ -48,6 +54,9 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Get notification count (total and unread)
+     */
     public NotificationCount getNotificationCount(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
@@ -58,6 +67,19 @@ public class NotificationService {
         return new NotificationCount(totalCount, unreadCount);
     }
     
+    /**
+     * Get only unread count (useful for badge display)
+     */
+    public Long getUnreadCount(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
+        
+        return notificationRepository.countByUserIdAndIsRead(user.getId(), false);
+    }
+    
+    /**
+     * Create a new notification
+     */
     @Transactional
     public void createNotification(UUID userId, String title, String content, String type) {
         Notification notification = new Notification();
@@ -70,6 +92,9 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
     
+    /**
+     * Mark a specific notification as read
+     */
     @Transactional
     public void markAsRead(UUID notificationId, String email) {
         User user = userRepository.findByEmail(email)
@@ -86,6 +111,9 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
     
+    /**
+     * Mark all notifications as read
+     */
     @Transactional
     public void markAllAsRead(String email) {
         User user = userRepository.findByEmail(email)
@@ -98,6 +126,41 @@ public class NotificationService {
         notificationRepository.saveAll(unreadNotifications);
     }
     
+    /**
+     * Delete a specific notification
+     */
+    @Transactional
+    public void deleteNotification(UUID notificationId, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
+        
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notifikasi tidak ditemukan"));
+        
+        if (!notification.getUserId().equals(user.getId())) {
+            throw new BadRequestException("Tidak dapat mengakses notifikasi ini");
+        }
+        
+        notificationRepository.delete(notification);
+    }
+    
+    /**
+     * Delete all read notifications
+     */
+    @Transactional
+    public void clearReadNotifications(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
+        
+        List<Notification> readNotifications = notificationRepository
+                .findByUserIdAndIsRead(user.getId(), true);
+        
+        notificationRepository.deleteAll(readNotifications);
+    }
+    
+    /**
+     * Map Notification entity to NotificationResponse DTO
+     */
     private NotificationResponse mapToNotificationResponse(Notification notification) {
         return new NotificationResponse(
                 notification.getId(),
@@ -109,6 +172,9 @@ public class NotificationService {
         );
     }
     
+    /**
+     * Inner class for notification count response
+     */
     public static class NotificationCount {
         private Long total;
         private Long unread;
@@ -124,6 +190,14 @@ public class NotificationService {
         
         public Long getUnread() {
             return unread;
+        }
+        
+        public void setTotal(Long total) {
+            this.total = total;
+        }
+        
+        public void setUnread(Long unread) {
+            this.unread = unread;
         }
     }
 }

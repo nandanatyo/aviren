@@ -16,6 +16,7 @@ import com.mentalhealth.aviren.dto.response.PetResponse;
 import com.mentalhealth.aviren.entity.Pet;
 import com.mentalhealth.aviren.entity.User;
 import com.mentalhealth.aviren.exception.BadRequestException;
+import com.mentalhealth.aviren.repository.NotificationRepository;
 import com.mentalhealth.aviren.repository.UserRepository;
 import com.mentalhealth.aviren.security.JwtTokenProvider;
 
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
     
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
     private final PetService petService;
     private final MinioService minioService;
     private final PasswordEncoder passwordEncoder;
@@ -60,11 +62,14 @@ public class AuthService {
         
         String profilePhotoUrl = minioService.generateFileUrl(savedUser.getProfilePhoto(), serverBaseUrl);
         
+        Long unreadCount = notificationRepository.countByUserIdAndIsRead(savedUser.getId(), false);
+        
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 savedUser.getId(),
                 savedUser.getName(),
                 savedUser.getEmail(),
-                profilePhotoUrl
+                profilePhotoUrl,
+                unreadCount
         );
         
         PetResponse petResponse = petService.getPetByUserId(savedUser.getId());
@@ -88,11 +93,14 @@ public class AuthService {
         
         String profilePhotoUrl = minioService.generateFileUrl(user.getProfilePhoto(), serverBaseUrl);
         
+        Long unreadCount = notificationRepository.countByUserIdAndIsRead(user.getId(), false);
+        
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                profilePhotoUrl
+                profilePhotoUrl,
+                unreadCount
         );
         
         return new AuthResponse(token, "Bearer", userInfo, petResponse);

@@ -14,5 +14,6 @@ public class ProfileResponse {
     private String name;
     private String email;
     private String profilePhoto;
+    private Long unreadNotifications;
     private PetResponse pet;
 }

@@ -23,5 +23,6 @@ public class AuthResponse {
         private String name;
         private String email;
         private String profilePhoto;
+        private Long unreadNotifications;
     }
 }

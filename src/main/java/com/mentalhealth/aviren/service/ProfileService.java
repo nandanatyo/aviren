@@ -11,6 +11,7 @@ import com.mentalhealth.aviren.dto.response.ProfileResponse;
 import com.mentalhealth.aviren.entity.User;
 import com.mentalhealth.aviren.exception.BadRequestException;
 import com.mentalhealth.aviren.exception.ResourceNotFoundException;
+import com.mentalhealth.aviren.repository.NotificationRepository;
 import com.mentalhealth.aviren.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class ProfileService {
     
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
     private final PetService petService;
     private final MinioService minioService;
     
@@ -34,11 +36,14 @@ public class ProfileService {
         
         String profilePhotoUrl = minioService.generateFileUrl(user.getProfilePhoto(), serverBaseUrl);
         
+        Long unreadCount = notificationRepository.countByUserIdAndIsRead(user.getId(), false);
+        
         return new ProfileResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 profilePhotoUrl,
+                unreadCount,
                 petResponse
         );
     }
@@ -70,12 +75,15 @@ public class ProfileService {
         PetResponse petResponse = petService.getPetByUserId(user.getId());
         
         String profilePhotoUrl = minioService.generateFileUrl(updatedUser.getProfilePhoto(), serverBaseUrl);
+        
+        Long unreadCount = notificationRepository.countByUserIdAndIsRead(updatedUser.getId(), false);
 
         return new ProfileResponse(
                 updatedUser.getId(),
                 updatedUser.getName(),
                 updatedUser.getEmail(),
                 profilePhotoUrl,
+                unreadCount,
                 petResponse
         );
     }
